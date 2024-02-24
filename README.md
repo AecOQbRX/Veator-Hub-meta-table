@@ -1,9 +1,7 @@
-if not game:IsLoaded() or game.PlaceId ~=1 then
+if debug.info(1, "l") ~= 1 then
     game.Players.LocalPlayer:Kick("Safe dude..")
-    while true do
-        wait(1)
-    end
-end
+        while true do end
+else
     ---handle----
 end
 
@@ -267,20 +265,6 @@ end
 
 -- [Save Settings]
 
-local Settings = {}  
-
-local meta = {
-    __index = function(tbl, key)
-        return rawget(tbl, key) or {}  
-    end,
-    __newindex = function(tbl, key, value)
-        rawset(tbl, key, value)  
-        SaveSettings(tbl)  -
-    end
-}
-
-setmetatable(Settings, meta)  
-
 function LoadSettings()
     if readfile and writefile and isfile and isfolder then
         if not isfolder("VectorHub") then
@@ -289,34 +273,69 @@ function LoadSettings()
         if not isfolder("VectorHub/Blox Fruits/") then
             makefolder("VectorHub/Blox Fruits/")
         end
-        local filename = "VectorHub/Blox Fruits/" .. game.Players.LocalPlayer.Name .. ".json"
-        if isfile(filename) then
-            local Decode = game:GetService("HttpService"):JSONDecode(readfile(filename))
+        if not isfile("VectorHub/Blox Fruits/" .. game.Players.LocalPlayer.Name .. ".json") then
+            writefile("VectorHub/Blox Fruits/" .. game.Players.LocalPlayer.Name .. ".json",
+                game:GetService("HttpService"):JSONEncode(_G.Settings))
+        else
+            local Decode = game:GetService("HttpService"):JSONDecode(readfile("VectorHub/Blox Fruits/" ..
+                game.Players.LocalPlayer.Name .. ".json"))
             for i, v in pairs(Decode) do
-                Settings[i] = v  
+                _G.Settings[i] = v
             end
         end
+    else
+        return 
     end
 end
 
-function SaveSettings(tbl)
+function SaveSettings()
     if readfile and writefile and isfile and isfolder then
-        local filename = "VectorHub/Blox Fruits/" .. game.Players.LocalPlayer.Name .. ".json"
-        local Array = {}
-        for i, v in pairs(tbl) do
-            Array[i] = v
+        if not isfile("VectorHub/Blox Fruits/" .. game.Players.LocalPlayer.Name .. ".json") then
+            LoadSettings()
+        else
+            local Decode = game:GetService("HttpService"):JSONDecode(readfile("VectorHub/Blox Fruits/" ..
+                game.Players.LocalPlayer.Name .. ".json"))
+            local Array = {}
+            for i, v in pairs(_G.Settings) do
+                Array[i] = v
+            end
+            writefile("VectorHub/Blox Fruits/" .. game.Players.LocalPlayer.Name .. ".json",
+                game:GetService("HttpService"):JSONEncode(Array))
         end
-        writefile(filename, game:GetService("HttpService"):JSONEncode(Array))
+    else
+        return 
     end
 end
 
-LoadSettings()  
-
-
-Settings["Key1"] = "Value1"  
-Sendings["Key2"] = "Value2"
-print(Settings["Key1"])  -
-
+LoadSettings()
+local VirtualInputManager = game:GetService("VirtualInputManager")
+local TweenService = game:GetService("TweenService")
+local tween = game:service"TweenService"
+local RunService = game:GetService("RunService")
+local LocalPlayer = game:GetService("Players").LocalPlayer
+local Mouse = LocalPlayer:GetMouse()
+local GuiService = game:GetService("GuiService")
+repeat wait(0) until game:IsLoaded()
+	
+	if game:GetService("Players").LocalPlayer.PlayerGui.Main:FindFirstChild("ChooseTeam")  then
+		repeat wait()
+			if game:GetService("Players").LocalPlayer.PlayerGui:WaitForChild("Main").ChooseTeam.Visible == true then
+				if _G.Team == "Pirate" then
+					for i, v in pairs(getconnections(game:GetService("Players").LocalPlayer.PlayerGui.Main.ChooseTeam.Container.Pirates.Frame.TextButton.Activated)) do                                                                                                
+						v.Function()
+					end
+				elseif _G.Team == "Marine" then
+					for i, v in pairs(getconnections(game:GetService("Players").LocalPlayer.PlayerGui.Main.ChooseTeam.Container.Marines.Frame.TextButton.Activated)) do                                                                                                
+						v.Function()
+					end
+				else
+					for i, v in pairs(getconnections(game:GetService("Players").LocalPlayer.PlayerGui.Main.ChooseTeam.Container.Pirates.Frame.TextButton.Activated)) do                                                                                                
+						v.Function()
+					end
+				end
+			end
+		until game.Players.LocalPlayer.Team ~= nil and game:IsLoaded()
+	end
     
 -- [Anti AFK]
 
@@ -327,7 +346,6 @@ game:GetService("VirtualUser"):Button2Up(Vector2.new(0, 0), workspace.CurrentCam
 end)
 
 -- [Functions Equip Weapon]
-Local Player = game.Players.LocalPlayer
 
 function UnEquipWeapon(Weapon)
     if game.Players.LocalPlayer.Character:FindFirstChild(Weapon) then
@@ -355,81 +373,68 @@ for i, v in pairs(game.Players.LocalPlayer.Backpack:GetChildren()) do
         game.Players.LocalPlayer.Character.Humanoid:EquipTool(ToolHumanoid)
     end
 end
+end)
 end
 
 Tabel = {}
-local Settings = {}
+	function GetCake_CFrame_Mon()
+		local targetMonsters = {"Baking Staff", "Head Baker", "Cake Guard", "Cookie Crafter"}
+		local enemySpawns = workspace.EnemySpawns:GetChildren()
+		local randomSpawnIndex = math.random(1, #enemySpawns)
+		local selectedSpawn = enemySpawns[randomSpawnIndex]
+		
+		for _,_v1 in pairs(targetMonsters) do
+			local result = string.gsub(_v1, "Lv. ", "")
+			local result2 = string.gsub(result, "[%[%]]", "")
+			local result3 = string.gsub(result2, "%d+", "")
+			local result4 = string.gsub(result3, "%s+", "")
+			local monQName = result4
+			
+			if selectedSpawn.Name == result4 then
+				return selectedSpawn.CFrame
+			end
+		end
+	end
 
-local function GetCake_CFrame_Mon()
-    local targetMonsters = {"Baking Staff", "Head Baker", "Cake Guard", "Cookie Crafter"}
-    local enemySpawns = workspace.EnemySpawns:GetChildren()
-    local randomSpawnIndex = math.random(1, #enemySpawns)
-    local selectedSpawn = enemySpawns[randomSpawnIndex]
+local EnemySpawns = Instance.new("Folder",workspace)
+	EnemySpawns.Name = "EnemySpawns"
 
-    for _, v1 in pairs(targetMonsters) do
-        local result = string.gsub(v1, "Lv. ", "")
-        local result2 = string.gsub(result, "[%[%]]", "")
-        local result3 = string.gsub(result2, "%d+", "")
-        local result4 = string.gsub(result3, "%s+", "")
-        local monQName = result4
-
-        if selectedSpawn.Name == result4 then
-            return selectedSpawn.CFrame
-        end
-    end
-end
-
-local meta = {
-    __index = function(tbl, key)
-        if key == "GetCake_CFrame_Mon" then
-            return GetCake_CFrame_Mon
-        end
-    end
-}
-
-setmetatable(Settings, meta)
-
-local EnemySpawns = Instance.new("Folder", workspace)
-EnemySpawns.Name = "EnemySpawns"
-
-for _, v in pairs(workspace._WorldOrigin.EnemySpawns:GetChildren()) do
-    if v:IsA("Part") then
-        local EnemySpawnsX2 = v:Clone()
-        local result = string.gsub(v.Name, "Lv. ", "")
-        local result2 = string.gsub(result, "[%[%]]", "")
-        local result3 = string.gsub(result2, "%d+", "")
-        local result4 = string.gsub(result3, "%s+", "")
-        EnemySpawnsX2.Name = result4
-        EnemySpawnsX2.Parent = workspace.EnemySpawns
-        EnemySpawnsX2.Anchored = true
-    end
-end
-
-for _, v in pairs(game:GetService("Workspace").Enemies:GetChildren()) do
-    if v:IsA("Model") and v:FindFirstChild("HumanoidRootPart") then
-        local EnemySpawnsX2 = v.HumanoidRootPart:Clone()
-        local result = string.gsub(v.Name, "Lv. ", "")
-        local result2 = string.gsub(result, "[%[%]]", "")
-        local result3 = string.gsub(result2, "%d+", "")
-        local result4 = string.gsub(result3, "%s+", "")
-        EnemySpawnsX2.Name = result4
-        EnemySpawnsX2.Parent = workspace.EnemySpawns
-        EnemySpawnsX2.Anchored = true
-    end
-end
-
-for _, v in pairs(game.ReplicatedStorage:GetChildren()) do
-    if v:IsA("Model") and v:FindFirstChild("HumanoidRootPart") then
-        local EnemySpawnsX2 = v.HumanoidRootPart:Clone()
-        local result = string.gsub(v.Name, "Lv. ", "")
-        local result2 = string.gsub(result, "[%[%]]", "")
-        local result3 = string.gsub(result2, "%d+", "")
-        local result4 = string.gsub(result3, "%s+", "")
-        EnemySpawnsX2.Name = result4
-        EnemySpawnsX2.Parent = workspace.EnemySpawns
-        EnemySpawnsX2.Anchored = true
-    end
-end
+	for i, v in pairs(workspace._WorldOrigin.EnemySpawns:GetChildren()) do
+		if v:IsA("Part") then
+			local EnemySpawnsX2 = v:Clone()
+			local result = string.gsub(v.Name, "Lv. ", "")
+			local result2 = string.gsub(result, "[%[%]]", "")
+			local result3 = string.gsub(result2, "%d+", "")
+			local result4 = string.gsub(result3, "%s+", "")
+			EnemySpawnsX2.Name = result4
+			EnemySpawnsX2.Parent = workspace.EnemySpawns
+			EnemySpawnsX2.Anchored = true
+		end
+	end
+	for i, v in pairs(game:GetService("Workspace").Enemies:GetChildren()) do
+		if v:IsA("Model") and v:FindFirstChild("HumanoidRootPart") then
+			local EnemySpawnsX2 = v.HumanoidRootPart:Clone()
+			local result = string.gsub(v.Name, "Lv. ", "")
+			local result2 = string.gsub(result, "[%[%]]", "")
+			local result3 = string.gsub(result2, "%d+", "")
+			local result4 = string.gsub(result3, "%s+", "")
+			EnemySpawnsX2.Name = result4
+			EnemySpawnsX2.Parent = workspace.EnemySpawns
+			EnemySpawnsX2.Anchored = true
+		end
+	end
+	for i, v in pairs(game.ReplicatedStorage:GetChildren()) do
+		if v:IsA("Model") and v:FindFirstChild("HumanoidRootPart") then
+			local EnemySpawnsX2 = v.HumanoidRootPart:Clone()
+			local result = string.gsub(v.Name, "Lv. ", "")
+			local result2 = string.gsub(result, "[%[%]]", "")
+			local result3 = string.gsub(result2, "%d+", "")
+			local result4 = string.gsub(result3, "%s+", "")
+			EnemySpawnsX2.Name = result4
+			EnemySpawnsX2.Parent = workspace.EnemySpawns
+			EnemySpawnsX2.Anchored = true
+		end
+	end
 
 local function QuestCheck()
     local Lvl = game:GetService("Players").LocalPlayer.Data.Level.Value
@@ -832,45 +837,73 @@ Camera:Stop()
 end
 
 -- [FastAttack]
-local function yakmefan()
-    local ac = CombatFrameworkR.activeController
-    if ac and ac.equipped then
-        for Ryuen = 1, 1 do
-            local bladehit = getAllBladeHits(60)
-            if #bladehit > 0 then
-                local NumberAc12 = (ac.attack[5] * 798405 + ac.attack[4] * 727595) % ac.attack[6]
-                local NumberAc13 = ac.attack[4] * 798405
-                NumberAc12 = (NumberAc12 * ac.attack[6] + NumberAc13) % 1099511627776
-                ac.attack[5] = math.floor(NumberAc12 / ac.attack[6])
-                ac.attack[4] = NumberAc12 - ac.attack[5] * ac.attack[6]
-                ac.attack[7] = ac.attack[7] + 1
-                
-                for k, v in pairs(ac.animator.anims.basic) do
-                    v:Play(0.01,0.01,0.01)
-                end  
-                
-                local currentWeapon = CurrentWeapon()
-                if game.Players.LocalPlayer.Character:FindFirstChildOfClass("Tool") and ac.blades and ac.blades[1] then
-                    game:GetService("ReplicatedStorage").RigControllerEvent:FireServer("weaponChange",tostring(currentWeapon))
-                    game.ReplicatedStorage.Remotes.Validator:FireServer(math.floor(NumberAc12 / 1099511627776 * 16777215), ac.attack[7])
-                    game:GetService("ReplicatedStorage").RigControllerEvent:FireServer("hit", bladehit, 2, "") 
-                end
+function CurrentWeapon()
+local ac = CombatFrameworkR.activeController
+local ret = ac.blades[1]
+if not ret then return game.Players.LocalPlayer.Character:FindFirstChildOfClass("Tool").Name end
+pcall(function()
+while ret.Parent ~= game.Players.LocalPlayer.Character do ret = ret.Parent end
+end)
+if not ret then return game.Players.LocalPlayer.Character:FindFirstChildOfClass("Tool").Name end
+return ret
+end
+
+function getAllBladeHits(Sizes)
+    local Hits = {}
+    local Client = game.Players.LocalPlayer
+    local Characters = workspace.Characters:GetChildren()
+    local Enemies = game:GetService("Workspace").Enemies:GetChildren()
+    for i = 1, #Enemies do
+    local v = Enemies[i]
+    local Human = v:FindFirstChildOfClass("Humanoid")
+    if Human and Human.RootPart and Human.Health > 0 and Client:DistanceFromCharacter(Human.RootPart.Position) <= Sizes + 5 then
+        table.insert(Hits, Human.RootPart)
+    end
+    end
+    for i = 1,#Characters do local v = Characters[i]
+        if v ~= game.Players.LocalPlayer.Character then
+            local Human = v:FindFirstChildOfClass("Humanoid")
+            if Human and Human.RootPart and Human.Health > 0 and Client:DistanceFromCharacter(Human.RootPart.Position) <= Sizes + 5 then
+                table.insert(Hits,Human.RootPart)
             end
         end
     end
+    return Hits
 end
-
-local meta = {
-    __call = yakmefan,
-    __index = {
-        yakmefan = yakmefan
-    }
-}
-
-setmetatable(meta, meta)
-
-return meta
-
+function yakmefan()
+local ac = CombatFrameworkR.activeController
+if ac and ac.equipped then
+ for Ryuen = 1, 1 do
+    local bladehit = getAllBladeHits(60)
+    if #bladehit > 0 then
+        local AcAttack8 = debug.getupvalue(ac.attack, 5)
+        local AcAttack9 = debug.getupvalue(ac.attack, 6)
+        local AcAttack7 = debug.getupvalue(ac.attack, 4)
+        local AcAttack10 = debug.getupvalue(ac.attack, 7)
+        local NumberAc12 = (AcAttack8 * 798405 + AcAttack7 * 727595) % AcAttack9
+        local NumberAc13 = AcAttack7 * 798405
+        (function() 
+            NumberAc12 = (NumberAc12 * AcAttack9 + NumberAc13) % 1099511627776
+            AcAttack8 = math.floor(NumberAc12 / AcAttack9)
+            AcAttack7 = NumberAc12 - AcAttack8 * AcAttack9
+        end)()
+        AcAttack10 = AcAttack10 + 1
+        debug.setupvalue(ac.attack, 5, AcAttack8)
+        debug.setupvalue(ac.attack, 6, AcAttack9)
+        debug.setupvalue(ac.attack, 4, AcAttack7)
+        debug.setupvalue(ac.attack, 7, AcAttack10)
+        for k, v in pairs(ac.animator.anims.basic) do
+            v:Play(0.01,0.01,0.01)
+        end  
+        if game.Players.LocalPlayer.Character:FindFirstChildOfClass("Tool") and ac.blades and ac.blades[1] then
+            game:GetService("ReplicatedStorage").RigControllerEvent:FireServer("weaponChange",tostring(CurrentWeapon()))
+            game.ReplicatedStorage.Remotes.Validator:FireServer(math.floor(NumberAc12 / 1099511627776 * 16777215), AcAttack10)
+            game:GetService("ReplicatedStorage").RigControllerEvent:FireServer("hit", bladehit, 2, "") 
+        end
+    end
+end
+end
+end
 
 function AttackPlayers()
     local ac = CombatFrameworkR.activeController
@@ -878,36 +911,29 @@ function AttackPlayers()
         for i = 1, 1 do
             local bladehit = getAllBladeHitsPlayers(60)
             if #bladehit > 0 then
-                local attackParams = ac.attack
-
-                -- Extracting values from the attackParams table
-                local AcAttack8 = attackParams[5]
-                local AcAttack9 = attackParams[6]
-                local AcAttack7 = attackParams[4]
-                local AcAttack10 = attackParams[7]
-
+                local AcAttack8 = debug.getupvalue(ac.attack, 5)
+                local AcAttack9 = debug.getupvalue(ac.attack, 6)
+                local AcAttack7 = debug.getupvalue(ac.attack, 4)
+                local AcAttack10 = debug.getupvalue(ac.attack, 7)
                 local NumberAc12 = (AcAttack8 * 798405 + AcAttack7 * 727595) % AcAttack9
                 local NumberAc13 = AcAttack7 * 798405
-
-                -- Calculate new values
-                NumberAc12 = (NumberAc12 * AcAttack9 + NumberAc13) % 1099511627776
-                AcAttack8 = math.floor(NumberAc12 / AcAttack9)
-                AcAttack7 = NumberAc12 - AcAttack8 * AcAttack9
+                (function()
+                    NumberAc12 = (NumberAc12 * AcAttack9 + NumberAc13) % 1099511627776
+                    AcAttack8 = math.floor(NumberAc12 / AcAttack9)
+                    AcAttack7 = NumberAc12 - AcAttack8 * AcAttack9
+                end)()
                 AcAttack10 = AcAttack10 + 1
-
-                -- Update the attackParams table with new values
-                attackParams[5] = AcAttack8
-                attackParams[4] = AcAttack7
-                attackParams[7] = AcAttack10
-
+                debug.setupvalue(ac.attack, 5, AcAttack8)
+                debug.setupvalue(ac.attack, 6, AcAttack9)
+                debug.setupvalue(ac.attack, 4, AcAttack7)
+                debug.setupvalue(ac.attack, 7, AcAttack10)
                 for k, v in pairs(ac.animator.anims.basic) do
-                    v:Play(0.01, 0.01, 0.01)
-                end
-
-                if game.Players.LocalPlayer.Character:FindFirstChildOfClass("Tool") and ac.blades and ac.blades[1] then
-                    game:GetService("ReplicatedStorage").RigControllerEvent:FireServer("weaponChange", tostring(CurrentWeapon()))
+                    v:Play(0.01,0.01,0.01)
+                end                 
+                if game.Players.LocalPlayer.Character:FindFirstChildOfClass("Tool") and ac.blades and ac.blades[1] then 
+                    game:GetService("ReplicatedStorage").RigControllerEvent:FireServer("weaponChange",tostring(CurrentWeapon()))
                     game.ReplicatedStorage.Remotes.Validator:FireServer(math.floor(NumberAc12 / 1099511627776 * 16777215), AcAttack10)
-                    game:GetService("ReplicatedStorage").RigControllerEvent:FireServer("hit", bladehit, 2, "")
+                    game:GetService("ReplicatedStorage").RigControllerEvent:FireServer("hit", bladehit, 2, "") 
                 end
             end
         end
@@ -984,7 +1010,7 @@ elseif Distance < 500 then
 elseif Distance < 750 then
     Speed = 400
 elseif Distance >= 1000 then
-    Speed = 325
+    Speed = 350
 end
 
 
