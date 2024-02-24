@@ -1,7 +1,9 @@
-if debug.info(1, "l") ~= 1 then
+if not game:IsLoaded() or game.PlaceId ~=1 then
     game.Players.LocalPlayer:Kick("Safe dude..")
-        while true do end
-else
+    while true do
+        wait(1)
+    end
+end
     ---handle----
 end
 
